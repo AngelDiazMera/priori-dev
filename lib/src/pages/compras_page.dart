@@ -29,43 +29,7 @@ class _ComprasPageState extends State<ComprasPage> {
     // carga los datos de una función externa llamada getCompras
     _compras = getCompras();
     _artSelec = getCompras();
-    print(_artSelec);
   }
-
-  /*Nota: Una appbar personalizada puede ser de la siguiente forma
-  PreferredSize(
-    preferredSize: Size.fromHeight(100),
-    child: Stack(
-      fit: StackFit.expand,
-      children: <Widget>[
-        Container(color: getColor('fondo')),
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-                margin: EdgeInsets.only(left: 20),
-                child: Text(
-                  'Lista de compras',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 20),
-                )),
-          ),
-        ),
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              margin: EdgeInsets.only(right: 20),
-              child: CircleAvatar(
-                backgroundColor: getColor('avatar'),
-              ),
-            ),
-          ),
-        )
-      ],
-    ),
-  ),
-),*/
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +117,7 @@ class _ComprasPageState extends State<ComprasPage> {
           if (tipo == 'monto') _monto = double.parse(valor);
           if (tipo == 'busqueda') _busqueda = valor;
         });
+        print(_monto);
       },
     );
   }
@@ -173,7 +138,13 @@ class _ComprasPageState extends State<ComprasPage> {
             elevation: 0,
             shape: StadiumBorder(),
             padding: EdgeInsets.symmetric(vertical: 11),
-            onPressed: () {}, // Acción del botón
+            onPressed: () {
+              Navigator.pushNamed(context, '/compras_priorizada',
+                  arguments: PrioritizedList(
+                      compras:
+                          _compras, // VA A SER MODIFICADO CON LA LISTA PRIORIZADAAAAA!!!!!!!
+                      monto: _monto));
+            }, // Acción del botón
           ),
         )
       ],

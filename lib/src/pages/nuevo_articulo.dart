@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // Importa el mapa de colores definidio para la aplicación
 import 'package:priori_dev/src/colors/colores.dart';
+import 'package:priori_dev/src/components/input_field.dart';
 
 // Definición del callback realizado desde la instanciación de esta clase
 typedef callbackFunc = Map Function(Map);
@@ -82,15 +83,15 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
     return <Widget>[
       _crearLabel('Nombre'),
       SizedBox(height: 15.0),
-      _crearInput('nombre', _nombreCtrl),
+      crearInput('texto', _nombreCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Descicpción'),
       SizedBox(height: 15.0),
-      _crearInput('descripcion', _descCtrl),
+      crearInput('texto', _descCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Precio'),
       SizedBox(height: 15.0),
-      _crearInput('precio', _precioCtrl),
+      crearInput('numero', _precioCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Prioridad'),
       SizedBox(height: 15.0),
@@ -205,36 +206,5 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
   Widget _crearLabel(texto) {
     return Text(texto,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
-  }
-
-  // Crea los input o cajas de texto
-  Widget _crearInput(tipo, control) {
-    return TextField(
-      controller:
-          control, // carga los datos definidos por el controlador. Recuerde que si es un artículo nuevo, se cargará una cadena vacía, pero si es un artículo para editar, cargará el dato correspondiente.
-
-      keyboardType: // Define el tipo de caja de texto que se va a dibujar
-          tipo == 'precio' ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 11.0, horizontal: 10.0),
-        // Propiedades del borde
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-          borderSide: BorderSide(color: getColor('inputBorder'), width: 1.5),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-          borderSide: BorderSide(color: Colors.white, width: 0),
-        ),
-        labelStyle: TextStyle(color: getColor('inputLabel')),
-        // Para el fondo
-        isDense: true,
-        filled: true,
-        fillColor: Colors.white,
-      ),
-    );
   }
 }

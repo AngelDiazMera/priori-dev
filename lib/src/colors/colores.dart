@@ -8,6 +8,7 @@ final _colores = <String, Color>{
   'avatar': Color.fromRGBO(91, 149, 209, 0.4),
   'inputBorder': Color.fromRGBO(220, 220, 220, 1),
   'inputLabel': Color.fromRGBO(112, 112, 112, 1),
+  'articuloSelec': Color.fromRGBO(237, 242, 245, 1)
 };
 
 Color getColor(String nombreColor) {
