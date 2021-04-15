@@ -17,14 +17,16 @@ class OptimizadorController {
       seleccionados.add(i);
       print(seleccionados);
       preliminar = add + optimizador.compras[i].precio;
+      print('calculo: $add + ${optimizador.compras[i].precio}');
       print('total peliminar: $preliminar/$dinero');
       if (preliminar <= dinero) {
         optimizador.xArr[i] = 1;
         add = add + optimizador.compras[i].precio;
       } else {
         optimizador.xArr[i] = 0;
-        add = dinero;
+        // add = dinero;
       }
+      print('Total agregado: $add');
       elem++;
     }
   }

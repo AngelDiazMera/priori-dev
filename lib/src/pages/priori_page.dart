@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priori_dev/src/colors/colores.dart';
-import 'package:priori_dev/src/logic/temp_main.dart';
 import 'package:priori_dev/src/models/articulo_model.dart';
 
 // ignore: must_be_immutable

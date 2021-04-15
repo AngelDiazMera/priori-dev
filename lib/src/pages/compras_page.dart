@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:priori_dev/src/colors/Colores.dart';
 import 'package:priori_dev/src/components/articulo_animado.dart';
 import 'package:priori_dev/src/components/input_field.dart';
-import 'package:priori_dev/src/logic/temp_main.dart';
+import 'package:priori_dev/src/logic/optimizador_main.dart';
 import 'package:priori_dev/src/models/articulo_model.dart';
 import 'package:priori_dev/src/providers/arguments.dart';
 // import 'package:priori_dev/src/providers/arguments.dart';
@@ -129,9 +129,10 @@ class _ComprasPageState extends State<ComprasPage> {
     List<Widget> contenido = <Widget>[
       _crearFilaInputBtn(),
       SizedBox(height: 20.0),
-      crearInput(
-          tipo: 'text', nombre: 'Busqueda', callback: _actualizarBusqueda),
-      SizedBox(height: 20.0),
+      // TODO: Descomentar para agregar barra de búsqueda
+      // crearInput(
+      //     tipo: 'text', nombre: 'Busqueda', callback: _actualizarBusqueda),
+      // SizedBox(height: 20.0),
     ];
     //Recorre los elementos en _compras
     if (_compras != null)
@@ -349,10 +350,11 @@ class _ComprasPageState extends State<ComprasPage> {
   }
 
   void _redirigirPriorizado() {
-    if (_monto <= 1.0)
+    if (_monto <= 1.0) {
       mostrarAlert(context, UniqueKey(), 'Debe ingresar un monto válido.',
           Icons.warning_amber_rounded, ['Ok!']);
-
+      return;
+    }
     List comprasSelec =
         _compras.where((element) => element.seleccionado == true).toList();
 
