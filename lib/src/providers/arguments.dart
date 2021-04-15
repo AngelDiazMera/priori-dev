@@ -1,13 +1,15 @@
+import 'package:priori_dev/src/models/articulo_model.dart';
+
 class SaveArguments {
-  final Map compras;
+  final List compras;
   final Function callback;
-  final Map articulo;
+  final ArticuloModel articulo;
 
   SaveArguments({this.compras, this.callback, this.articulo});
 }
 
 class PrioritizedList {
-  final Map compras;
+  final List compras;
   final double monto;
 
   PrioritizedList({this.compras, this.monto});

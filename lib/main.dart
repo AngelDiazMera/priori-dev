@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:priori_dev/src/pages/compras_page.dart';
 
 import 'package:priori_dev/src/colors/tema.dart';
-// import 'package:priori_dev/src/pages/nuevo_articulo.dart';
-// import 'package:priori_dev/src/providers/arguments.dart';
 import 'package:priori_dev/src/routes/rutas.dart';
 
 void main() => runApp(MyApp());

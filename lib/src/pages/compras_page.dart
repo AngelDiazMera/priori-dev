@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:priori_dev/src/colors/Colores.dart';
+import 'package:priori_dev/src/components/articulo_animado.dart';
+import 'package:priori_dev/src/components/input_field.dart';
+import 'package:priori_dev/src/logic/temp_main.dart';
+import 'package:priori_dev/src/models/articulo_model.dart';
 import 'package:priori_dev/src/providers/arguments.dart';
-import 'package:priori_dev/src/temp/compras.dart';
+// import 'package:priori_dev/src/providers/arguments.dart';
+import 'package:priori_dev/src/providers/db_providers.dart';
+// import 'package:priori_dev/src/temp/compras.dart';
 
 class ComprasPage extends StatefulWidget {
   // Constructor
@@ -14,25 +20,26 @@ class ComprasPage extends StatefulWidget {
 }
 
 class _ComprasPageState extends State<ComprasPage> {
-  Map<int, Map<String, dynamic>> _artSelec;
   // Valores utilizados para el texto de los input
   double _monto = 0;
   String _busqueda = '';
-  // Mapa de la "lista" de compras
-  Map<int, Map<String, dynamic>> _compras;
+  // Lista de compras
+  List<ArticuloModel> _compras;
   // Datos del artículo seleccionado por el usuario
-  Map<String, dynamic> _artActivo;
+  ArticuloModel _artActivo;
 
   void initState() {
     //Esta funcioon es para ahorrar memoria, solo lanza este elemento cuando la aplicacion se abre y no la mantiene en uso en tiempo de inactividad
     super.initState();
-    // carga los datos de una función externa llamada getCompras
-    _compras = getCompras();
-    _artSelec = getCompras();
   }
 
   @override
   Widget build(BuildContext context) {
+    DBProvider.db.getAllArticulos().then((arts) {
+      if (_compras == null) {
+        _actualizaCompras(arts);
+      }
+    });
     // Construcción del Scaffold
     return Scaffold(
       appBar: AppBar(
@@ -64,12 +71,11 @@ class _ComprasPageState extends State<ComprasPage> {
             arguments: SaveArguments(
               compras: _compras,
               // Almacena un nuevo valor en el mapa
-              callback: (map) {
-                int last;
-                _compras.forEach((key, value) => last = key);
-                map['id'] = last + 1;
-                map['seleccionado'] = true;
-                setState(() => _compras[last + 1] = map);
+              callback: (ArticuloModel articulo) {
+                DBProvider.db.nuevoArticulo(articulo);
+                DBProvider.db
+                    .getAllArticulos()
+                    .then((arts) => _actualizaCompras(arts));
               },
               articulo: null,
             ),
@@ -79,47 +85,18 @@ class _ComprasPageState extends State<ComprasPage> {
     );
   }
 
-  // Crea un input de texto
-  Widget _crearInput(tipo) {
-    return TextField(
-      // Si es un monto, entonces será numérico
-      keyboardType: tipo == 'monto' ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        // Padding
-        contentPadding: EdgeInsets.symmetric(vertical: 11.0, horizontal: 10.0),
-        // Propiedades de los bordes
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-          borderSide: BorderSide(color: getColor('inputBorder'), width: 1.5),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(17.0),
-          borderSide: BorderSide(color: Colors.white, width: 0),
-        ),
-        // Label
-        labelText: tipo == 'monto'
-            ? 'Monto'
-            : tipo == 'busqueda'
-                ? 'Buscar'
-                : 'ND',
-        labelStyle: TextStyle(color: getColor('inputLabel')),
-        // Para el relleno
-        isDense: true,
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      // Actualización de estado
-      onChanged: (valor) {
-        setState(() {
-          if (tipo == 'monto') _monto = double.parse(valor);
-          if (tipo == 'busqueda') _busqueda = valor;
-        });
-        print(_monto);
-      },
-    );
+  void _actualizarMonto(valor) {
+    setState(() => _monto = double.parse(valor));
+  }
+
+  void _actualizarBusqueda(valor) {
+    setState(() => _busqueda = valor);
+  }
+
+  void _actualizaCompras(articulos) {
+    setState(() {
+      _compras = articulos;
+    });
   }
 
   // Crea la fila de input del monto y el botón priorizar
@@ -127,25 +104,20 @@ class _ComprasPageState extends State<ComprasPage> {
     return Row(
       children: <Widget>[
         Expanded(
-          child: _crearInput('monto'),
+          child: crearInput(
+              tipo: 'numero', nombre: 'Monto', callback: _actualizarMonto),
         ),
         Container(
           margin: EdgeInsets.only(left: 10.0),
           child: RaisedButton(
-            child: Text('Priorizar'),
-            color: getColor('principal'),
-            textColor: Colors.white,
-            elevation: 0,
-            shape: StadiumBorder(),
-            padding: EdgeInsets.symmetric(vertical: 11),
-            onPressed: () {
-              Navigator.pushNamed(context, '/compras_priorizada',
-                  arguments: PrioritizedList(
-                      compras:
-                          _compras, // VA A SER MODIFICADO CON LA LISTA PRIORIZADAAAAA!!!!!!!
-                      monto: _monto));
-            }, // Acción del botón
-          ),
+              child: Text('Priorizar'),
+              color: getColor('principal'),
+              textColor: Colors.white,
+              elevation: 0,
+              shape: StadiumBorder(),
+              padding: EdgeInsets.symmetric(vertical: 11),
+              onPressed: _redirigirPriorizado // Acción del botón
+              ),
         )
       ],
     );
@@ -157,89 +129,55 @@ class _ComprasPageState extends State<ComprasPage> {
     List<Widget> contenido = <Widget>[
       _crearFilaInputBtn(),
       SizedBox(height: 20.0),
-      _crearInput('busqueda'),
+      crearInput(
+          tipo: 'text', nombre: 'Busqueda', callback: _actualizarBusqueda),
       SizedBox(height: 20.0),
     ];
     //Recorre los elementos en _compras
-    _compras.forEach((key, articulo) {
-      contenido
-        ..add(
-          SizedBox(height: 10.0),
-        )
-        ..add(
-          Dismissible(
-            // Widget que permite eliminar los elementos cuando los pasas de lado
-            key: Key(articulo['id'].toString()), // Identificador
-            child: _crearArticulo(key, articulo), // Lo que se deslizará
-            // Una confirmación para la eliminación como alerta
-            confirmDismiss: (DismissDirection direction) async {
-              return await _mostrarAlert(context, key);
-            },
-            // Acción que procede al ser deslizado.
-            onDismissed: (direction) {
-              setState(() {
-                _compras.remove(key);
-              });
-            },
-            // Color detrás del elemento a deslizar
-            background: new Container(
-              color: getColor('avatar'),
+    if (_compras != null)
+      _compras.forEach((ArticuloModel articulo) {
+        contenido
+          ..add(
+            SizedBox(height: 10.0),
+          )
+          ..add(
+            Dismissible(
+              // Widget que permite eliminar los elementos cuando los pasas de lado
+              key: ValueKey(articulo.id.toString()), // Identificador
+              child:
+                  _crearArticulo(articulo.id, articulo), // Lo que se deslizará
+              // Una confirmación para la eliminación como alerta
+              confirmDismiss: (DismissDirection direction) async {
+                return await mostrarAlert(
+                    context,
+                    articulo.id,
+                    '¿Está seguro que desea eliminar este artículo?',
+                    Icons.info_outline,
+                    ['Cancelar', 'Eliminar']);
+              },
+              // Acción que procede al ser deslizado.
+              onDismissed: (direction) {
+                setState(() {
+                  _compras.removeWhere((element) => element.id == articulo.id);
+                  DBProvider.db.deleteArticulo(articulo.id);
+                  // DBProvider.db
+                  //     .getAllArticulos()
+                  //     .then((arts) => _actualizaCompras(arts));
+                });
+              },
+              // Color detrás del elemento a deslizar
+              background: new Container(
+                color: getColor('avatar'),
+              ),
             ),
-          ),
-        );
-    });
+          );
+      });
 
     return contenido;
   }
 
-  // Alerta de confirmación para la eliminación
-  Future<bool> _mostrarAlert(BuildContext context, key) {
-    return showDialog(
-      context: context, // Contexto de la aplicación (ES NECESARIO)
-      barrierDismissible: true, //Para el clikc afuera y salir
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.all(15),
-          // configuración del diálogo
-          content: Row(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(right: 10),
-                child: Icon(
-                  Icons.info_outline,
-                  color: getColor('texto'),
-                  size: 40.0,
-                ),
-              ),
-              Expanded(
-                  child:
-                      Text('¿Está seguro que desea eliminar este artículo?')),
-            ],
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: getColor('texto')),
-              ),
-            ),
-            Expanded(child: SizedBox()),
-            FlatButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                'Eliminar',
-                style: TextStyle(color: getColor('texto')),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   // Crea el contenedor animado de un artículo
-  Widget _crearArticulo(key, articulo) {
+  Widget _crearArticulo(int key, ArticuloModel articulo) {
     // Almacena el valor boleano de la comparación entre el artículo activo y el artículo dibujado, es decir, si el artículo coincide con el que se haya seleccionado, activo será verdadero
     bool activo = _artActivo == articulo;
     // detector de gestos para el tap
@@ -259,7 +197,7 @@ class _ComprasPageState extends State<ComprasPage> {
         duration: Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
         // Propiedades del contenedor
-        height: activo ? 136.0 : 88.0,
+        height: activo ? 136.0 : 92.0,
         padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(17.0),
@@ -280,7 +218,7 @@ class _ComprasPageState extends State<ComprasPage> {
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            articulo['nombre'],
+                            articulo.nombre,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
@@ -288,7 +226,7 @@ class _ComprasPageState extends State<ComprasPage> {
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            '${articulo['descripcion']}',
+                            '${articulo.descripcion}',
                             style: TextStyle(
                                 fontSize: 14, color: getColor('articuloDesc')),
                             overflow: TextOverflow.ellipsis,
@@ -299,7 +237,7 @@ class _ComprasPageState extends State<ComprasPage> {
                             Icon(Icons.monetization_on_rounded,
                                 size: 14, color: getColor('articuloDesc')),
                             SizedBox(width: 5),
-                            Text('${articulo['precio']}',
+                            Text('${articulo.precio}',
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: getColor('articuloDesc'))),
@@ -307,7 +245,7 @@ class _ComprasPageState extends State<ComprasPage> {
                             Icon(Icons.escalator_sharp,
                                 size: 14, color: getColor('articuloDesc')),
                             SizedBox(width: 5),
-                            Text('${articulo['prioridad']}',
+                            Text('${articulo.prioridad}',
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: getColor('articuloDesc'))),
@@ -329,81 +267,101 @@ class _ComprasPageState extends State<ComprasPage> {
               children: <Widget>[],
             ),
             // Cuando haya sido seleccionado, dibujará los botones
-            if (activo)
-              Row(
-                children: <Widget>[
-                  FlatButton(
-                    child: Text(
-                      'Cancelar',
-                      style: TextStyle(color: getColor('texto')),
-                    ),
-                    shape: StadiumBorder(),
-                    onPressed: () {
-                      setState(() => _artActivo = null);
-                    },
-                  ),
-                  Expanded(child: SizedBox()),
-                  RaisedButton(
-                    child: Text('Editar'),
-                    color: getColor('principal'),
-                    textColor: Colors.white,
-                    elevation: 0,
-                    shape: StadiumBorder(),
-                    padding: EdgeInsets.all(0),
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/nuevo',
-                        // Actualización del elemento de la lista
-                        arguments: SaveArguments(
-                          compras: _compras,
-                          callback: (map) {
-                            map['seleccionado'] = true;
-                            setState(() {
-                              _compras[key] = map;
-                            });
-                          },
-                          articulo: articulo,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              )
+            if (activo) _dibujaBotonesArticulo(key, articulo)
           ],
         ),
       ),
     );
   }
 
+  Widget _dibujaBotonesArticulo(int key, ArticuloModel articulo) {
+    return Row(
+      children: <Widget>[
+        FlatButton(
+          child: Text(
+            'Cancelar',
+            style: TextStyle(color: getColor('texto')),
+          ),
+          shape: StadiumBorder(),
+          onPressed: () {
+            setState(() => _artActivo = null);
+          },
+        ),
+        Expanded(child: SizedBox()),
+        RaisedButton(
+          child: Text('Editar'),
+          color: getColor('principal'),
+          textColor: Colors.white,
+          elevation: 0,
+          shape: StadiumBorder(),
+          padding: EdgeInsets.all(0),
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              '/nuevo',
+              // Actualización del elemento de la lista
+              arguments: SaveArguments(
+                compras: _compras,
+                callback: (ArticuloModel articulo) {
+                  DBProvider.db.updateArticulo(articulo);
+                  DBProvider.db
+                      .getAllArticulos()
+                      .then((arts) => _actualizaCompras(arts));
+                },
+                articulo: articulo,
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   // Crea un checkbox personalizado
-  Widget _crearCheckbox(key, articulo) {
+  Widget _crearCheckbox(int key, ArticuloModel articulo) {
+    // bool esSeleccionado = _artSelec.contains(articulo);
     return InkWell(
       onTap: () {
         setState(() {
-          // alterna el estado de selección del artículo
-          _artSelec[key]['seleccionado'] = !_artSelec[key]['seleccionado'];
+          articulo.seleccionado = !articulo.seleccionado;
         });
       },
       child: Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8), color: getColor('avatar')),
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          // Cuando la propiedad sea verdadera, dibuja una palomita, sino, un recuadro
-          child: _artSelec[key]['seleccionado']
-              ? Icon(
-                  Icons.check,
-                  size: 20.0,
-                  color: Colors.white,
-                )
-              : Icon(
-                  Icons.check_box_outline_blank,
-                  size: 20.0,
-                  color: Color.fromRGBO(255, 255, 255, 0),
-                ),
-        ),
-      ),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: getColor('avatar')),
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            // Cuando la propiedad sea verdadera, dibuja una palomita, sino, un recuadro
+            child: articulo.seleccionado
+                ? Icon(
+                    Icons.check,
+                    size: 20.0,
+                    color: Colors.white,
+                  )
+                : Icon(
+                    Icons.circle,
+                    size: 20.0,
+                    color: Color.fromRGBO(255, 255, 255, 0),
+                  ),
+          )),
     );
+  }
+
+  void _redirigirPriorizado() {
+    if (_monto <= 1.0)
+      mostrarAlert(context, UniqueKey(), 'Debe ingresar un monto válido.',
+          Icons.warning_amber_rounded, ['Ok!']);
+
+    List comprasSelec =
+        _compras.where((element) => element.seleccionado == true).toList();
+
+    comprasSelec =
+        comprasSelec.where((element) => element.precio <= _monto).toList();
+
+    comprasSelec = pruebaOptimizacion(comprasSelec, _monto);
+
+    Navigator.pushNamed(context, '/compras_priorizada',
+        arguments: PrioritizedList(compras: comprasSelec, monto: _monto));
   }
 }

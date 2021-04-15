@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:priori_dev/src/colors/colores.dart';
 
-Widget crearInput(tipo, control) {
+Widget crearInput(
+    {String tipo,
+    TextEditingController control,
+    String nombre,
+    Function callback}) {
   TextInputType _tipo =
       tipo == 'numero' ? TextInputType.number : TextInputType.text;
 
@@ -24,11 +28,14 @@ Widget crearInput(tipo, control) {
         borderRadius: BorderRadius.circular(17.0),
         borderSide: BorderSide(color: Colors.white, width: 0),
       ),
+      labelText: nombre,
       labelStyle: TextStyle(color: getColor('inputLabel')),
       // Para el fondo
       isDense: true,
       filled: true,
       fillColor: Colors.white,
     ),
+
+    onChanged: (valor) => callback(valor),
   );
 }

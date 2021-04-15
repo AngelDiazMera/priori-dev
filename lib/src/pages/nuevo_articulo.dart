@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 // Importa el mapa de colores definidio para la aplicación
 import 'package:priori_dev/src/colors/colores.dart';
 import 'package:priori_dev/src/components/input_field.dart';
+import 'package:priori_dev/src/models/articulo_model.dart';
 
 // Definición del callback realizado desde la instanciación de esta clase
-typedef callbackFunc = Map Function(Map);
+typedef callbackFunc = ArticuloModel Function(ArticuloModel);
 
 class NuevoArticuloPage extends StatefulWidget {
   // Argumentos para la instancia de la clase
-  final Map<int, Map<String, dynamic>> compras;
+  final List<ArticuloModel> compras;
   final callbackFunc callback;
-  final Map<String, dynamic> articulo;
+  final ArticuloModel articulo;
   // Constructor
   NuevoArticuloPage({
     Key key,
@@ -24,6 +25,7 @@ class NuevoArticuloPage extends StatefulWidget {
 }
 
 class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
+  int id;
   // Variables de los input
   int _prioridad;
   // Controladores para la carga automática de valores en caso que
@@ -39,12 +41,11 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
     // Condición: Si existe un artículo para actualizar mandado a llamar desde
     // la instanciación de la clase, entonces el controlador tomará el valor
     // correspondiente a la propiedad. En caso contrario, quedará vacío.
-    _nombreCtrl.text = widget.articulo != null ? widget.articulo['nombre'] : '';
-    _descCtrl.text =
-        widget.articulo != null ? widget.articulo['descripcion'] : '';
+    _nombreCtrl.text = widget.articulo != null ? widget.articulo.nombre : '';
+    _descCtrl.text = widget.articulo != null ? widget.articulo.descripcion : '';
     _precioCtrl.text =
-        widget.articulo != null ? widget.articulo['precio'].toString() : '';
-    _prioridad = widget.articulo != null ? widget.articulo['prioridad'] : 1;
+        widget.articulo != null ? widget.articulo.precio.toString() : '';
+    _prioridad = widget.articulo != null ? widget.articulo.prioridad : 1;
   }
 
   @override
@@ -62,7 +63,7 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
       appBar: AppBar(
           backgroundColor: getColor('fondo'),
           title: Text(widget.articulo != null
-              ? widget.articulo['nombre']
+              ? widget.articulo.nombre
               : 'Nuevo articulo'),
           actions: <Widget>[
             IconButton(
@@ -83,15 +84,15 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
     return <Widget>[
       _crearLabel('Nombre'),
       SizedBox(height: 15.0),
-      crearInput('texto', _nombreCtrl),
+      crearInput(tipo: 'texto', control: _nombreCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Descicpción'),
       SizedBox(height: 15.0),
-      crearInput('texto', _descCtrl),
+      crearInput(tipo: 'texto', control: _descCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Precio'),
       SizedBox(height: 15.0),
-      crearInput('numero', _precioCtrl),
+      crearInput(tipo: 'numero', control: _precioCtrl),
       SizedBox(height: 20.0),
       _crearLabel('Prioridad'),
       SizedBox(height: 15.0),
@@ -118,15 +119,17 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
             elevation: 0,
             shape: StadiumBorder(),
             onPressed: () {
+              ArticuloModel nuevoArt = ArticuloModel(
+                  nombre: _nombreCtrl.text,
+                  precio: double.parse(_precioCtrl.text),
+                  prioridad: _prioridad,
+                  descripcion: _descCtrl.text);
+
+              if (widget.articulo != null) nuevoArt.id = widget.articulo.id;
               // Llama el calback definido como un argumento y pasa un mapa con
               // llaves de cadena y valores dinámicos. Es decir, pasa el
               // artículo que se haya definido en los input
-              widget.callback(<String, dynamic>{
-                'nombre': _nombreCtrl.text,
-                'descripcion': _descCtrl.text,
-                'precio': _precioCtrl.text,
-                'prioridad': _prioridad
-              });
+              widget.callback(nuevoArt);
               // Se sale de la página
               Navigator.pop(context);
             },

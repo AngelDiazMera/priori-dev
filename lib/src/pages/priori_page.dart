@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:priori_dev/src/colors/colores.dart';
+import 'package:priori_dev/src/logic/temp_main.dart';
+import 'package:priori_dev/src/models/articulo_model.dart';
 
 // ignore: must_be_immutable
 class PrioriPage extends StatefulWidget {
-  Map<int, Map<String, dynamic>> compras;
+  List<ArticuloModel> compras;
   double monto;
   PrioriPage({Key key, @required this.compras, @required this.monto})
       : super(key: key);
@@ -13,7 +15,7 @@ class PrioriPage extends StatefulWidget {
 }
 
 class _PrioriPageState extends State<PrioriPage> {
-  final Map<int, Map<String, dynamic>> _listaCompras = {};
+  final List<ArticuloModel> _listaCompras = [];
   double _total = 00.0;
 
   @override
@@ -32,27 +34,27 @@ class _PrioriPageState extends State<PrioriPage> {
   List<Widget> _crearContenido() {
     List<Widget> contenido = [];
 
-    widget.compras.forEach((key, articulo) {
+    widget.compras.forEach((articulo) {
       contenido
         ..add(
-          _crearArticulo(key, articulo),
+          _crearArticulo(articulo.id, articulo),
         )
         ..add(SizedBox(height: 10.0));
     });
     return contenido;
   }
 
-  Widget _crearArticulo(int key, Map<String, dynamic> articulo) {
-    bool esSeleccionado = _listaCompras.containsKey(key);
+  Widget _crearArticulo(int key, ArticuloModel articulo) {
+    bool esSeleccionado = _listaCompras.contains(articulo);
     return GestureDetector(
       onTap: () {
         setState(() {
           if (!esSeleccionado) {
-            _listaCompras[key] = articulo;
-            _total += _listaCompras[key]['precio'];
+            _listaCompras.add(articulo);
+            _total += articulo.precio;
           } else {
-            _total -= _listaCompras[key]['precio'];
-            _listaCompras.remove(key);
+            _total -= articulo.precio;
+            _listaCompras.removeWhere((element) => element.id == key);
           }
         });
       },
@@ -78,7 +80,7 @@ class _PrioriPageState extends State<PrioriPage> {
                     Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        articulo['nombre'],
+                        articulo.nombre,
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -86,7 +88,7 @@ class _PrioriPageState extends State<PrioriPage> {
                     Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        '${articulo['descripcion']}',
+                        '${articulo.descripcion}',
                         style: TextStyle(
                             fontSize: 14, color: getColor('articuloDesc')),
                         overflow: TextOverflow.ellipsis,
@@ -97,14 +99,14 @@ class _PrioriPageState extends State<PrioriPage> {
                         Icon(Icons.monetization_on_rounded,
                             size: 14, color: getColor('articuloDesc')),
                         SizedBox(width: 5),
-                        Text('${articulo['precio']}',
+                        Text('${articulo.precio}',
                             style: TextStyle(
                                 fontSize: 14, color: getColor('articuloDesc'))),
                         Expanded(child: SizedBox()),
                         Icon(Icons.escalator_sharp,
                             size: 14, color: getColor('articuloDesc')),
                         SizedBox(width: 5),
-                        Text('${articulo['prioridad']}',
+                        Text('${articulo.prioridad}',
                             style: TextStyle(
                                 fontSize: 14, color: getColor('articuloDesc'))),
                         Expanded(child: SizedBox()),
