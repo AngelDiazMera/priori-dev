@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:priori_dev/src/colors/Colores.dart';
-import 'package:priori_dev/src/components/articulo_animado.dart';
-import 'package:priori_dev/src/components/input_field.dart';
+import 'package:priori_dev/src/widgets/articulo_animado.dart';
+import 'package:priori_dev/src/widgets/input_field.dart';
 import 'package:priori_dev/src/logic/optimizador_main.dart';
 import 'package:priori_dev/src/models/articulo_model.dart';
 import 'package:priori_dev/src/providers/arguments.dart';

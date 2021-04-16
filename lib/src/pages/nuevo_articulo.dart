@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // Importa el mapa de colores definidio para la aplicación
 import 'package:priori_dev/src/colors/colores.dart';
-import 'package:priori_dev/src/components/input_field.dart';
+import 'package:priori_dev/src/widgets/input_field.dart';
 import 'package:priori_dev/src/models/articulo_model.dart';
 
 // Definición del callback realizado desde la instanciación de esta clase
