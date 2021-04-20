@@ -1,6 +1,9 @@
+// import 'dart:html';
+
 import 'package:flutter/material.dart';
 // Importa el mapa de colores definidio para la aplicación
 import 'package:priori_dev/src/colors/colores.dart';
+import 'package:priori_dev/src/widgets/articulo_animado.dart';
 import 'package:priori_dev/src/widgets/input_field.dart';
 import 'package:priori_dev/src/models/articulo_model.dart';
 
@@ -119,6 +122,9 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
             elevation: 0,
             shape: StadiumBorder(),
             onPressed: () {
+              if (_entradasNoValidas(context)) {
+                return;
+              }
               ArticuloModel nuevoArt = ArticuloModel(
                   nombre: _nombreCtrl.text,
                   precio: double.parse(_precioCtrl.text),
@@ -209,5 +215,18 @@ class _NuevoArticuloPageState extends State<NuevoArticuloPage> {
   Widget _crearLabel(texto) {
     return Text(texto,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
+  }
+
+  //verifica si la entrada no es valida
+  bool _entradasNoValidas(context) {
+    final bool isNombEmpty = _nombreCtrl.text.isNotEmpty;
+    final bool isDescEmpty = _descCtrl.text.isNotEmpty;
+    final bool isPrecEmpty = _precioCtrl.text.isNotEmpty;
+    if (isNombEmpty && isDescEmpty & isPrecEmpty) {
+      return false;
+    }
+    mostrarAlert(context, UniqueKey(), 'No puede dejar campos vacíos',
+        Icons.warning_amber_rounded, ['Ok!']);
+    return true;
   }
 }

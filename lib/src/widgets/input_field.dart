@@ -5,6 +5,7 @@ Widget crearInput(
     {String tipo,
     TextEditingController control,
     String nombre,
+    bool esVacio = false,
     Function callback}) {
   TextInputType _tipo =
       tipo == 'numero' ? TextInputType.number : TextInputType.text;
@@ -29,6 +30,7 @@ Widget crearInput(
         borderSide: BorderSide(color: Colors.white, width: 0),
       ),
       labelText: nombre,
+      errorText: esVacio ? 'Este campo no puede estar vacío' : null,
       labelStyle: TextStyle(color: getColor('inputLabel')),
       // Para el fondo
       isDense: true,

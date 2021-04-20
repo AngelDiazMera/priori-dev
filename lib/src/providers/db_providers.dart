@@ -57,50 +57,6 @@ class DBProvider {
     );
   }
 
-  /* Modelo pensado para la versión 2.0
-    CREATE TABLE Lista(
-      idLista     INTEGER PRIMARY KEY,
-      nombre      TEXT,
-      color       TEXT,
-      tipo        TEXT
-    );
-    CREATE TABLE Articulo(
-      idArticulo  INTEGER PRIMARY KEY,
-      nombre      TEXT,
-      precio      DECIMAL(8,2),
-      prioridad   INTEGER,
-      descripcion TEXT,
-      idLista     INTEGER,
-      FOREIGN KEY(idLista) REFERENCES Lista(idLista)
-    );
-  */
-
-  /* Descomenta para probar
-  // Forma arcáica de inserción
-  Future<int> nuevaListaRaw(ListaModel listaModel) async {
-    final id = listaModel.id;
-    final nombre = listaModel.nombre;
-    final color = listaModel.color;
-    final tipo = listaModel.tipo;
-
-    final db = await database; // espera a que la base de datos esté lista.
-
-    final res = await db.rawInsert('''
-      INSERT INTO Lista(id, nombre, color, tipo)
-        VALUES($id, '$nombre', '$color', '$tipo')
-    ''');
-
-    return res;
-  }*/
-
-  /* MÉTODO PENSADO PARA LA VERSIÓN 2.O DEL MODELO
-  Future<int> nuevaLista(ListaModel listaModel) async {
-    final db = await database;
-    final res = await db.insert('Lista', listaModel.toJson());
-    return res; // res es el ID del último registro insertado
-  }
- */
-
   // INSERT  nuevo artículo
   Future<int> nuevoArticulo(ArticuloModel articuloModel) async {
     final db = await database;

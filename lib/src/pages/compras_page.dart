@@ -8,6 +8,7 @@ import 'package:priori_dev/src/models/articulo_model.dart';
 import 'package:priori_dev/src/providers/arguments.dart';
 // import 'package:priori_dev/src/providers/arguments.dart';
 import 'package:priori_dev/src/providers/db_providers.dart';
+import 'package:regexed_validator/regexed_validator.dart';
 // import 'package:priori_dev/src/temp/compras.dart';
 
 class ComprasPage extends StatefulWidget {
@@ -20,9 +21,10 @@ class ComprasPage extends StatefulWidget {
 }
 
 class _ComprasPageState extends State<ComprasPage> {
-  // Valores utilizados para el texto de los input
-  double _monto = 0;
-  String _busqueda = '';
+  // Controladores para la carga automática de valores en caso que
+  // se deseé editar un artículo
+  final TextEditingController _montoCtrl = TextEditingController();
+  // String _busqueda = '';
   // Lista de compras
   List<ArticuloModel> _compras;
   // Datos del artículo seleccionado por el usuario
@@ -85,13 +87,9 @@ class _ComprasPageState extends State<ComprasPage> {
     );
   }
 
-  void _actualizarMonto(valor) {
-    setState(() => _monto = double.parse(valor));
-  }
-
-  void _actualizarBusqueda(valor) {
-    setState(() => _busqueda = valor);
-  }
+  // void _actualizarBusqueda(valor) {
+  //   setState(() => _busqueda = valor);
+  // }
 
   void _actualizaCompras(articulos) {
     setState(() {
@@ -104,8 +102,8 @@ class _ComprasPageState extends State<ComprasPage> {
     return Row(
       children: <Widget>[
         Expanded(
-          child: crearInput(
-              tipo: 'numero', nombre: 'Monto', callback: _actualizarMonto),
+          child:
+              crearInput(tipo: 'numero', nombre: 'Monto', control: _montoCtrl),
         ),
         Container(
           margin: EdgeInsets.only(left: 10.0),
@@ -350,11 +348,32 @@ class _ComprasPageState extends State<ComprasPage> {
   }
 
   void _redirigirPriorizado() {
-    if (_monto <= 1.0) {
-      mostrarAlert(context, UniqueKey(), 'Debe ingresar un monto válido.',
+    RegExp _dineroRegEx =
+        RegExp("^\$|^(0|([1-9][0-9]{0,3}))(\\.[0-9]{0,2})?\$");
+    double _monto;
+
+    if (_montoCtrl.text.isEmpty) {
+      mostrarAlert(context, UniqueKey(), 'Debe ingresar un monto',
           Icons.warning_amber_rounded, ['Ok!']);
       return;
     }
+
+    if (_montoCtrl.text.startsWith('.')) {
+      _montoCtrl.text = '0' + _montoCtrl.text;
+    }
+
+    if (!_dineroRegEx.hasMatch('${_montoCtrl.text}')) {
+      mostrarAlert(
+          context,
+          UniqueKey(),
+          'La cantidad: ${_montoCtrl.text} no es válida.',
+          Icons.warning_amber_rounded,
+          ['Ok!']);
+      return;
+    }
+
+    _monto = double.tryParse(_montoCtrl.text);
+
     List comprasSelec =
         _compras.where((element) => element.seleccionado == true).toList();
 
