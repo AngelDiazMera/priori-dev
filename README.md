@@ -1,16 +1,39 @@
-# priori_dev
+# Priori-Dev (Development version)
 
-A new Flutter project.
+[![](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
+[![](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
+[![](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/index.html)
 
-## Getting Started
+Priori-Dev is a Flutter mobile app which works as a tool for priorization based on a binary ravenous maximization algorithm. Here you can...  
 
-This project is a starting point for a Flutter application.
+  - Full article's data management
+  - Prioritize shopping items
+  - Assign a numerical priority to each element
 
-A few resources to get you started if this is your first Flutter project:
+### Tech
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Priori-Dev uses a number of open source projects to work properly:
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Flutter - Google SDK based on Dart
+* Dart - Programming language
+* SQLite - To store the app's data
+
+### Installation
+
+Just clone this project and run the Flutter app ;)
+
+### Development
+
+Want to contribute? Great!
+Pull requests are allowed ;)
+
+![](http://ForTheBadge.com/images/badges/built-with-love.svg)
+[![](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AngelDiazMera/)
+[![](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Antonio152/)
+
+
+License
+----
+
+MIT
+
